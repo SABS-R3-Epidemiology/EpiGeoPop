@@ -1,0 +1,4 @@
+venv
+.snakemake*
+data/raw
+data/processed

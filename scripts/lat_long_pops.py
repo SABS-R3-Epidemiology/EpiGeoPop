@@ -22,15 +22,15 @@ def lat_long_pops(countries_path, transforms_path, out_path):
 
     for country in country_data:
         transform = transform_data[country]
-        csv_lines = 'latitude,longitude,population'
+        csv_lines = 'longitude,latitude,population'
         for section in country_data[country]:
             for i in range(len(section)):
                 for j in range(len(section[i])):
                     coords = transform * (i, j)
-                    lat, long = coords
+                    long, lat = coords
                     pop = section[i][j]
                     if pop > 0:
-                        csv_lines += f'\n{lat},{long},{pop}'
+                        csv_lines += f'\n{long},{lat},{pop}'
         with open(f'data/processed/{country}.csv', 'w') as f:
             f.write(csv_lines)
 

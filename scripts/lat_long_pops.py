@@ -19,17 +19,17 @@ def lat_long_pops(countries_path, transforms_path, out_path):
         # for country in ['Bermuda']:
         for country in npzfile.files:
             transform_data[country] = Affine.from_gdal(*npzfile[country])
-
     for country in country_data:
+        print(f'Extracting lat/long data for {country}')
         transform = transform_data[country]
         csv_lines = 'longitude,latitude,population'
         for section in country_data[country]:
             for i in range(len(section)):
                 for j in range(len(section[i])):
-                    coords = transform * (i, j)
-                    long, lat = coords
                     pop = section[i][j]
                     if pop > 0:
+                        coords = transform * (j, i)
+                        long, lat = coords
                         csv_lines += f'\n{long},{lat},{pop}'
         with open(f'data/processed/{country}.csv', 'w') as f:
             f.write(csv_lines)

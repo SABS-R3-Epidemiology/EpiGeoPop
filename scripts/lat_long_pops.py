@@ -10,14 +10,14 @@ def lat_long_pops(countries_path, transforms_path, out_path):
 
     with open(countries_path, 'rb') as f:
         npzfile = np.load(f)
-        # for country in npzfile.files:
-        for country in ['Bermuda']:
+        # for country in ['Bermuda']:
+        for country in npzfile.files:
             country_data[country] = npzfile[country]
 
     with open(transforms_path, 'rb') as f:
         npzfile = np.load(f)
-        # for country in npzfile.files:
-        for country in ['Bermuda']:
+        # for country in ['Bermuda']:
+        for country in npzfile.files:
             transform_data[country] = Affine.from_gdal(*npzfile[country])
 
     for country in country_data:

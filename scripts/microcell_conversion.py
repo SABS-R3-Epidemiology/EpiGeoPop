@@ -19,6 +19,10 @@ def min_separation(x_loc, y_loc):
     return sep
 
 
+def make_csv_row(data):
+    return ','.join(str(i) for i in data) + '\n'
+
+
 def make_microcells(population_path, config_path, out_path):
     with open(config_path, 'r') as f:
         config = json.loads(f.read())
@@ -34,9 +38,10 @@ def make_microcells(population_path, config_path, out_path):
 
     df = pd.read_csv(population_path)
 
-    mcell_df = pd.DataFrame(columns=columns)
     delta = min_separation(df['longitude'], df['latitude'])
 
+    f = open(out_path, 'w')
+    f.write(make_csv_row(columns))
     for cell_index, row in df.iterrows():
         grid_len = math.ceil(math.sqrt(mcell_num_per_cell))
         m_pos = np.linspace(0, 1, grid_len)
@@ -63,10 +68,9 @@ def make_microcells(population_path, config_path, out_path):
                          "place_number": np.random.poisson(ave_places_per_mcell),
                          "household_number": math.ceil(mcell_split[n] / ave_size)}
 
-            new_row = pd.DataFrame(data=data_dict, columns=columns, index=[0])
-            mcell_df = pd.concat([mcell_df, new_row], ignore_index=True, axis=0)
+            f.write(make_csv_row(data_dict[c] for c in columns))
 
-    mcell_df.to_csv(out_path, header=True, index=False)
+    f.close()
 
 
 make_microcells(snakemake.input[0], snakemake.input[1], snakemake.output[0])

@@ -1,13 +1,8 @@
-#
-# Converts gibraltar population data from covidsim into compatible input file
-#
-
+import json
 import math
 import os
 import numpy as np
 import pandas as pd
-
-import pyEpiabm as pe
 
 
 def min_separation(x_loc, y_loc):
@@ -24,53 +19,54 @@ def min_separation(x_loc, y_loc):
     return sep
 
 
-pe.Parameters.set_file(os.path.join(os.path.dirname(__file__), os.pardir,
-                                    "gibraltar_parameters.json"))
-
-mcell_num_per_cell = pe.Parameters.instance().mcell_num_per_cell
-ave_places_per_mcell = pe.Parameters.instance().ave_places_per_mcell
-np.random.seed(42)
-
-file_path = os.path.dirname(__file__)
-columns = ["cell", "microcell", "location_x", "location_y",
-           "household_number", "place_number", "Susceptible"]
-
-df = pd.read_csv(os.path.join(file_path, "wpop_gib.txt"),
-                 skiprows=0,  delim_whitespace=True, header=0)
-
-mcell_df = pd.DataFrame(columns=columns)
-delta = min_separation(df['longitude'], df['latitude'])
-
-for cell_index, row in df.iterrows():
-    grid_len = math.ceil(math.sqrt(mcell_num_per_cell))
-    m_pos = np.linspace(0, 1, grid_len)
-
-    # Multinomial population distribution
-    mcell_pop = int(row["population"] / mcell_num_per_cell)
-    p = [1 / mcell_num_per_cell] * mcell_num_per_cell
-    mcell_split = np.random.multinomial(row["population"], p, size=1)[0]
-
+def make_microcells(population_path, config_path, out_path):
+    with open(config_path, 'r') as f:
+        config = json.loads(f.read())
+    mcell_num_per_cell = config['mcell_num_per_cell']
+    ave_places_per_mcell = config['ave_places_per_mcell']
     # Household count - based on average household size
-    hh_freq = pe.Parameters.instance().household_size_distribution
-    ave_size = np.sum(np.multiply(np.array(range(1, len(hh_freq) + 1)),
-                                  hh_freq))
+    hh_freq = config['household_size_distribution']
 
-    for n in range(mcell_num_per_cell):
-        x = (row["longitude"]
-             + (m_pos[n % grid_len] - 0.5) * delta / grid_len)
-        y = (row["latitude"]
-             + (m_pos[n // grid_len] - 0.5) * delta / grid_len)
+    np.random.seed(42)
 
-        data_dict = {"cell": cell_index,
-                     "microcell": n,
-                     "location_x": x,
-                     "location_y": y,
-                     "Susceptible": mcell_split[n],
-                     "place_number": np.random.poisson(ave_places_per_mcell),
-                     "household_number": math.ceil(mcell_split[n] / ave_size)}
+    columns = ["cell", "microcell", "location_x", "location_y",
+               "household_number", "place_number", "Susceptible"]
 
-        new_row = pd.DataFrame(data=data_dict, columns=columns, index=[0])
-        mcell_df = pd.concat([mcell_df, new_row], ignore_index=True, axis=0)
+    df = pd.read_csv(population_path)
 
-mcell_df.to_csv(os.path.join(file_path, "gib_input.csv"),
-                header=True, index=False)
+    mcell_df = pd.DataFrame(columns=columns)
+    delta = min_separation(df['longitude'], df['latitude'])
+
+    for cell_index, row in df.iterrows():
+        grid_len = math.ceil(math.sqrt(mcell_num_per_cell))
+        m_pos = np.linspace(0, 1, grid_len)
+
+        # Multinomial population distribution
+        mcell_pop = int(row["population"] / mcell_num_per_cell)
+        p = [1 / mcell_num_per_cell] * mcell_num_per_cell
+        mcell_split = np.random.multinomial(row["population"], p, size=1)[0]
+
+        ave_size = np.sum(np.multiply(np.array(range(1, len(hh_freq) + 1)),
+                                      hh_freq))
+
+        for n in range(mcell_num_per_cell):
+            x = (row["longitude"]
+                 + (m_pos[n % grid_len] - 0.5) * delta / grid_len)
+            y = (row["latitude"]
+                 + (m_pos[n // grid_len] - 0.5) * delta / grid_len)
+
+            data_dict = {"cell": cell_index,
+                         "microcell": n,
+                         "location_x": x,
+                         "location_y": y,
+                         "Susceptible": mcell_split[n],
+                         "place_number": np.random.poisson(ave_places_per_mcell),
+                         "household_number": math.ceil(mcell_split[n] / ave_size)}
+
+            new_row = pd.DataFrame(data=data_dict, columns=columns, index=[0])
+            mcell_df = pd.concat([mcell_df, new_row], ignore_index=True, axis=0)
+
+    mcell_df.to_csv(out_path, header=True, index=False)
+
+
+make_microcells(snakemake.input[0], snakemake.input[1], snakemake.output[0])

@@ -2,7 +2,7 @@ rule all:
     input:
         "outputs/Bermuda.pdf",
         "data/processed/country_populations.csv",
-        "data/processed/Bermuda.csv",
+        "data/processed/Bermuda_microcells.csv",
         "outputs/dag.pdf"
 
 rule render_dag:
@@ -47,3 +47,12 @@ rule lat_long_pops:
         "data/processed/Bermuda.csv"
     script:
         "scripts/lat_long_pops.py"
+
+rule bermuda_microcells:
+    input:
+        "data/processed/Bermuda.csv",
+        "configs/gibraltar_parameters.json"
+    output:
+        "data/processed/Bermuda_microcells.csv"
+    script:
+        "scripts/microcell_conversion.py"

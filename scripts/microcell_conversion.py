@@ -19,6 +19,24 @@ def min_separation(x_loc, y_loc):
     return sep
 
 
+def min_separation_lazy(x_loc, y_loc):
+    """Returns minimum separation between the middle point and all other points
+    Should be identitical to min_separation for regular grids but computes in O(n)
+    instead of O(n^2)
+    """
+    assert len(x_loc) == len(y_loc), "Mismatched coordinates"
+    sep = np.inf
+    mid_idx = int(len(x_loc)/2)
+
+    x1, y1 = x_loc[mid_idx], y_loc[mid_idx]
+    for x2, y2 in zip(x_loc, y_loc):
+        if (x1 == x2) and (y1 == y2):
+            continue
+        if np.linalg.norm([x2-x1, y2-y1]) < sep:
+            sep = np.linalg.norm([x2-x1, y2-y1])
+    return sep
+
+
 def make_csv_row(data):
     return ','.join(str(i) for i in data) + '\n'
 
@@ -38,11 +56,16 @@ def make_microcells(population_path, config_path, out_path):
 
     df = pd.read_csv(population_path)
 
-    delta = min_separation(df['longitude'], df['latitude'])
+    print('Calculating the grid size...')
+    delta = min_separation_lazy(df['longitude'], df['latitude'])
+    print('Done')
 
     f = open(out_path, 'w')
     f.write(make_csv_row(columns))
+    print('Creating microcells...')
     for cell_index, row in df.iterrows():
+        if cell_index % int(len(df) / 10) == 0:
+            print('Creating cell {}/{}'.format(cell_index, len(df)))
         grid_len = math.ceil(math.sqrt(mcell_num_per_cell))
         m_pos = np.linspace(0, 1, grid_len)
 
@@ -71,6 +94,7 @@ def make_microcells(population_path, config_path, out_path):
             f.write(make_csv_row(data_dict[c] for c in columns))
 
     f.close()
+    print('Done')
 
 
 make_microcells(snakemake.input[0], snakemake.input[1], snakemake.output[0])

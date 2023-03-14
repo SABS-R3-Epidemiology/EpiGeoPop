@@ -16,15 +16,12 @@ def count_pop(data):
 def country_pops(data_path, out_path):
 
     country_data = {}
-    csv_lines = 'country,population'
     with open(data_path, 'rb') as f:
         npzfile = np.load(f)
-        for country in npzfile.files:
-            population = int(count_pop(npzfile[country]))
-            csv_lines += f'\n{country},{population}'
+        population = int(count_pop(npzfile['country_array']))
 
     with open(out_path, 'w') as f:
-        f.write(csv_lines)
+        f.write(population)
 
 
 country_pops(snakemake.input[0], snakemake.output[0])

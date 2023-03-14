@@ -64,7 +64,7 @@ def make_microcells(population_path, config_path, out_path):
     f.write(make_csv_row(columns))
     print('Creating microcells...')
     for cell_index, row in df.iterrows():
-        if cell_index % int(len(df) / 10) == 0:
+        if len(df) >=10 and cell_index % int(len(df) / 10) == 0:
             print('Creating cell {}/{}'.format(cell_index, len(df)))
         grid_len = math.ceil(math.sqrt(mcell_num_per_cell))
         m_pos = np.linspace(0, 1, grid_len)
@@ -78,10 +78,12 @@ def make_microcells(population_path, config_path, out_path):
                                       hh_freq))
 
         for n in range(mcell_num_per_cell):
-            x = (row["longitude"]
-                 + (m_pos[n % grid_len] - 0.5) * delta / grid_len)
-            y = (row["latitude"]
-                 + (m_pos[n // grid_len] - 0.5) * delta / grid_len)
+            # x = (row["longitude"]
+            #      + (m_pos[n % grid_len] - 0.5) * delta / grid_len)
+            # y = (row["latitude"]
+            #      + (m_pos[n // grid_len] - 0.5) * delta / grid_len)
+            x = row["longitude"]
+            y = row["latitude"]
 
             data_dict = {"cell": cell_index,
                          "microcell": n,

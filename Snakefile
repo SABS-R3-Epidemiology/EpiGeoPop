@@ -8,6 +8,14 @@ rule all:
         "data/processed/provinces/CA-NB_microcells.csv",
         "data/processed/cities/Winnipeg_microcells.csv",
         "data/processed/cities/Dublin2_microcells.csv",
+        "data/processed/countries/Bermuda_pop_dist.json",
+        "data/processed/countries/Gibraltar_pop_dist.json",
+        "data/processed/countries/Luxembourg_pop_dist.json",
+        "data/processed/countries/Netherlands_pop_dist.json",
+        "data/processed/countries/New Zealand_pop_dist.json",
+        "data/processed/provinces/CA-NB_pop_dist.json",
+        "data/processed/cities/Winnipeg_pop_dist.json",
+        "data/processed/cities/Dublin2_pop_dist.json",
         "outputs/dag.pdf"
 
 rule render_dag:
@@ -79,3 +87,11 @@ rule make_microcells:
     script:
         "scripts/microcell_conversion.py"
 
+rule make_pop_dist:
+    input:
+        "data/raw/WPP2022_PopulationByAge5GroupSex_Medium.csv",
+        "configs/{region}/{place}_parameters.json"
+    output:
+        "data/processed/{region}/{place}_pop_dist.json"
+    script:
+        "scripts/get_pop_dist.py"

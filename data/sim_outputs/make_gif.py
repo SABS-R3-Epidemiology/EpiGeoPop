@@ -1,3 +1,4 @@
+import math
 import glob
 import os
 from PIL import Image
@@ -42,7 +43,7 @@ def generate_colour_map(df, name, min_value=0.0, cmap=cm.Reds):
     """Generates a given color map, with the max value determined by
     the max value in a given column of the provided dataframe.
     """
-    max_inf = max(df[name])
+    max_inf = math.log(max(df[name])+1)
     cmap.set_under('lightgrey')
     norm = matplotlib.colors.Normalize(vmin=min_value, vmax=max_inf, clip=False)
     return cm.ScalarMappable(norm=norm, cmap=cmap)
@@ -73,7 +74,7 @@ def render_frame(ax, df, i, time, name, mapper, save_path='.'):
     for row in rows:
         coords = f'{row[1]}-{row[0]}'
         idx = coord_map[coords]
-        img_grid[idx] = row[2]
+        img_grid[idx] = math.log(row[2]+1)
     ax.set_title(f'Time = {time}')
     im = ax.imshow(img_grid, norm=mapper.norm, cmap=mapper.get_cmap())
     if i == 0:

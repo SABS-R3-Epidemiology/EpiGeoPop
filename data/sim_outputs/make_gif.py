@@ -10,6 +10,7 @@ import matplotlib.cm as cm
 import numpy as np
 
 sim_file = 'output_winnipeg.csv'
+# sim_file = 'output_NZ.csv'
 
 delta = 0.008333
 
@@ -20,13 +21,13 @@ y_locs = sorted(list(set(df['location_y'])))
 # Ensure that the grid is regular and contains all x and y values
 # Note: this may fail if there is a discontinuity (i.e. a group of islands)
 
-for i in range(len(x_locs) - 1):
-    diff = x_locs[i+1] - x_locs[i]
-    assert round(diff, 6) == delta
+# for i in range(len(x_locs) - 1):
+#     diff = x_locs[i+1] - x_locs[i]
+#     assert round(diff, 6) == delta
 
-for i in range(len(y_locs) - 1):
-    diff = y_locs[i+1] - y_locs[i]
-    assert round(diff, 6) == delta
+# for i in range(len(y_locs) - 1):
+#     diff = y_locs[i+1] - y_locs[i]
+#     assert round(diff, 6) == delta
 
 # Map geo coordinates to pixel indices
 
@@ -84,7 +85,7 @@ def render_frame(ax, df, i, time, name, mapper, save_path='.'):
 
     # plt.show()
     # print('Saving')
-    plt.savefig(f'{save_path}/frame-{i:03d}.png', bbox_inches='tight')
+    plt.savefig(f'{save_path}/frame-{i:03d}.png', bbox_inches='tight', dpi=im.axes.figure.dpi*4)
 
 
 def make_gif(

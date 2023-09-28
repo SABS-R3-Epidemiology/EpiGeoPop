@@ -9,6 +9,13 @@ This workflow is motivated by extending [epiabm](https://github.com/SABS-R3-Epid
 The following shows how to setup and run the Snakemake pipeline.
 By default, it will create the files for running a Luxembourg simulation, but the `Snakefile` can be modified to generated files for many countries, province/states, or cities.
 
+Clone the repository
+
+```
+git clone git@github.com:SABS-R3-Epidemiology/EpiGeoPop.git
+cd EpiGeoPop
+```
+
 Create virtual environment (recommended)
 
 ```
@@ -34,14 +41,14 @@ Run the snakemake pipeline
 snakemake --cores 1
 ```
 
-# Exploring the data
+## Exploring the data
 
 Check the `outputs` directory for example population density maps.
 The image `outputs/dag.svg` shows the entire workflow.
 The file `data/processed/countries/Luxembourg_microcells.csv` contains the generated microcells, used for input to simulations such as epiabm.
 The file `data/processed/countries/Luxembourg_pop_dist.json` contains the age distribution of populations.
 
-# Running on other regions
+## Running on other regions
 
 The Snakefile contains commented out examples of other regions to show how to generate files for other countries, provinces, and cities.
 These also require a configuration file which can be copied from similar files in the `configs` directory.

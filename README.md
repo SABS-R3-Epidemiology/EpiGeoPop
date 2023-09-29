@@ -6,15 +6,15 @@ This workflow is motivated by extending [epiabm](https://github.com/SABS-R3-Epid
 
 The workflow generates population density files that look like:
 
-![Luxembourg heatmap](../example_figures/luxembourg_pop.png)
+![Luxembourg heatmap](./example_figures/luxembourg_pop.png)
 
 and can generate figures of simulations like:
 
-![Luxembourg time grid](../example_figures/population_output_simulation_1_grid.png)
+![Luxembourg time grid](./example_figures/population_output_simulation_1_grid.png)
 
 or animations like:
 
-![Luxembourg time animation](../example_figures/population_output_simulation_1.gif)
+![Luxembourg time animation](./example_figures/population_output_simulation_1.gif)
 
 ## Running
 

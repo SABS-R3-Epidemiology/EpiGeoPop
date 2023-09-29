@@ -61,7 +61,7 @@ def add_colorbar(im, width=None, pad=None, **kwargs):
     return fig.colorbar(cax=cax, **kwargs)       # draw cbar
 
 
-def render_frame(ax, df, i, time, name, mapper, save_path='.'):
+def render_frame(ax, df, i, time, name, mapper, save_path='.', snaps=False):
     print(f'Generating frame {i}')
     rows = df[df['time'] == time]
     img_grid = [[-1] * len(x_locs)] * len(y_locs)
@@ -78,14 +78,14 @@ def render_frame(ax, df, i, time, name, mapper, save_path='.'):
         img_grid[idx] = math.log(row[2]+1)
     ax.set_title(f'Time = {time}')
     im = ax.imshow(img_grid, norm=mapper.norm, cmap=mapper.get_cmap())
-    if i == 0:
+    if i == 0 and not snaps:
         add_colorbar(im, mappable=mapper)
-    if not os.path.exists(save_path):
+    if not os.path.exists(save_path) and not snaps:
         os.makedirs(save_path)
 
-    # plt.show()
     # print('Saving')
-    plt.savefig(f'{save_path}/frame-{i:03d}.png', bbox_inches='tight', dpi=im.axes.figure.dpi*4)
+    if not snaps:
+        plt.savefig(f'{save_path}/frame-{i:03d}.png', bbox_inches='tight', dpi=im.axes.figure.dpi*4)
 
 
 def make_gif(
@@ -105,7 +105,6 @@ def make_gif(
 
     plt.axis('off')
     for i, t in enumerate(times):
-        # t_fig, t_ax = plot_time_point(df, vor, name, t, grid_lim, ax, mapper, borders_df)
         render_frame(ax, df, i, t, name, mapper, save_path)
 
     fp_in = f"{save_path}/frame-*.png"
@@ -127,8 +126,42 @@ def make_gif(
         os.remove(file)
 
 
+def make_snaps(
+        df,
+        times,
+        grid_dim,
+        name='InfectionStatus.InfectMild',
+        save_path = 'animation',
+    ):
+    file_names = []
+
+    # Generate colour map to use
+    mapper = generate_colour_map(df, name=name)
+
+    # Configure subplot grid
+    fig, axs = plt.subplots(grid_dim[0], grid_dim[1], sharex=True, sharey=True)
+    axs = axs.ravel()
+
+    # Determine time points to use
+    plot_num = math.prod(grid_dim)
+
+    times = [time for time in times if time % math.ceil(len(times)/plot_num) == 0]
+
+    # Add each subplot
+    for i, t in enumerate(times):
+        render_frame(axs[i], df, i, t, name, mapper, save_path, snaps=True)
+        axs[i].axis('off')
+
+    plt.tight_layout()
+    cbar = plt.colorbar(mapper, ax=axs.tolist())
+    fp_name = sim_file.split('/')[-1].replace('.csv', '')
+    fp_out = f"{save_path}/{fp_name}_grid.png"
+    plt.savefig(fp_out, bbox_inches='tight', dpi=300)
+
+
 # Sum infections over all age groups, etc.
 df = df.groupby(['time', 'location_x', 'location_y'], as_index=False).sum()
 
 times = sorted(list(set(df['time'])))
 make_gif(df, times)
+make_snaps(df, times, (3,3))

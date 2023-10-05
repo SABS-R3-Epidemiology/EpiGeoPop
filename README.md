@@ -1,20 +1,20 @@
-# Country population data workflow
+# EpiGeoPop
 
 This repository is a snakemake workflow for getting population density data for arbitrary countries.
 It uses population data from the [JRC Big Data Analytics Platform](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_MT_GLOBE_R2019A/GHS_POP_E2015_GLOBE_R2019A_4326_30ss/V1-0/), border data from [Natural Earth](https://www.naturalearthdata.com/downloads/10m-cultural-vectors/), and is partially based on Adam Symington's [excellent blog post](https://towardsdatascience.com/creating-beautiful-population-density-maps-with-python-fcdd84035e06).
-This workflow is motivated by extending [epiabm](https://github.com/SABS-R3-Epidemiology/epiabm) to other countries and is very much a work in progress.
+This workflow is motivated by extending [epiabm](https://github.com/SABS-R3-Epidemiology/epiabm) to other countries.
 
 The workflow generates population density files that look like:
 
-![Luxembourg heatmap](../example_figures/luxembourg_pop.png)
+![Luxembourg heatmap](./example_figures/luxembourg_pop.png)
 
 and can generate figures of simulations like:
 
-![Luxembourg time grid](../example_figures/population_output_simulation_1_grid.png)
+![Luxembourg time grid](./example_figures/population_output_simulation_1_grid.png)
 
 or animations like:
 
-![Luxembourg time animation](../example_figures/population_output_simulation_1.gif)
+![Luxembourg time animation](./example_figures/population_output_simulation_1.gif)
 
 ## Running
 
@@ -67,7 +67,7 @@ These also require a configuration file which can be copied from similar files i
 
 ## Generating animations
 
-The file `make_gif.py` in `data/simulation_outputs` is used for making GIFs and grids from simulation input data.
-To use it, add the simulation output file to `data/simulation_outputs`, edit the filename in `make_gif.py`, and run `python make_gif.py`.
-The resulating animation and grid of time snapshots will be stored in `data/simulation_outputs/animation`.
+The file `make_gif.py` in `data/sim_outputs` is used for making GIFs and grids from simulation input data.
+To use it, add the simulation output file to `data/sim_outputs`, edit the filename in `make_gif.py`, and run `python make_gif.py`.
+The resulating animation and grid of time snapshots will be stored in `data/sim_outputs/animation`.
 An example on Winnipeg (Canada) is provided in this repository.

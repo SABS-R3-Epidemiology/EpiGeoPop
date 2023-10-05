@@ -44,7 +44,7 @@ def generate_colour_map(df, name, min_value=0.0, cmap=cm.Reds):
     """Generates a given color map, with the max value determined by
     the max value in a given column of the provided dataframe.
     """
-    max_inf = math.log(max(df[name])+1)
+    max_inf = math.log10(max(df[name])+1)
     cmap.set_under('lightgrey')
     norm = matplotlib.colors.Normalize(vmin=min_value, vmax=max_inf, clip=False)
     return cm.ScalarMappable(norm=norm, cmap=cmap)
@@ -61,6 +61,16 @@ def add_colorbar(im, width=None, pad=None, **kwargs):
     return fig.colorbar(cax=cax, **kwargs)       # draw cbar
 
 
+def cbar_ticks(mapper):
+    max_val = mapper.norm.vmax
+    ticks = list(range(math.ceil(mapper.norm.vmax)))
+    labels = [10**tick for tick in ticks]
+    ticks = [math.log10(10**tick+1) for tick in ticks]
+    ticks = [0] + ticks
+    labels = [0] + labels
+    return ticks, labels
+
+
 def render_frame(ax, df, i, time, name, mapper, save_path='.', snaps=False):
     print(f'Generating frame {i}')
     rows = df[df['time'] == time]
@@ -70,20 +80,21 @@ def render_frame(ax, df, i, time, name, mapper, save_path='.', snaps=False):
         rows['location_x'],
         rows['location_y'],
         rows[name]
-        # df['InfectionStatus.Recovered']
     )
     for row in rows:
         coords = f'{row[1]}-{row[0]}'
         idx = coord_map[coords]
-        img_grid[idx] = math.log(row[2]+1)
+        img_grid[idx] = math.log10(row[2]+1)
     ax.set_title(f'Time = {time}')
     im = ax.imshow(img_grid, norm=mapper.norm, cmap=mapper.get_cmap())
     if i == 0 and not snaps:
-        add_colorbar(im, mappable=mapper)
+        ticks, labels = cbar_ticks(mapper)
+        cbar = add_colorbar(im, mappable=mapper, ticks=ticks)
+        cbar.ax.set_yticklabels(labels)
+        cbar.set_label("Total infections")
     if not os.path.exists(save_path) and not snaps:
         os.makedirs(save_path)
 
-    # print('Saving')
     if not snaps:
         plt.savefig(f'{save_path}/frame-{i:03d}.png', bbox_inches='tight', dpi=im.axes.figure.dpi*4)
 
@@ -97,11 +108,7 @@ def make_gif(
     file_names = []
 
     mapper = generate_colour_map(df, name=name)
-    # cbar = plt.colorbar(mapper)
-    # cbar.set_label("Number of " + str(name))
-    # fig = plt.figure()
     ax = plt.axes()
-    # add_colorbar(fig)
 
     plt.axis('off')
     for i, t in enumerate(times):
@@ -117,7 +124,6 @@ def make_gif(
         format="GIF",
         append_images=imgs,
         save_all=True,
-        # duration=20,
         duration=100,
         loop=0,
         optimise=True,
@@ -153,15 +159,31 @@ def make_snaps(
         axs[i].axis('off')
 
     plt.tight_layout()
-    cbar = plt.colorbar(mapper, ax=axs.tolist())
+    ticks, labels = cbar_ticks(mapper)
+    cbar = plt.colorbar(mapper, ax=axs.tolist(), ticks=ticks)
+    cbar.ax.set_yticklabels(labels)
+    cbar.set_label("Total infections")
     fp_name = sim_file.split('/')[-1].replace('.csv', '')
     fp_out = f"{save_path}/{fp_name}_grid.png"
     plt.savefig(fp_out, bbox_inches='tight', dpi=300)
 
 
+names = [
+    'InfectionStatus.InfectASympt',
+    'InfectionStatus.InfectMild',
+    'InfectionStatus.InfectGP',
+    'InfectionStatus.InfectHosp',
+    'InfectionStatus.InfectICU',
+]
+
+# Get all infections
+df['infections'] = df[names].sum(axis=1)
+
 # Sum infections over all age groups, etc.
 df = df.groupby(['time', 'location_x', 'location_y'], as_index=False).sum()
 
+
 times = sorted(list(set(df['time'])))
-make_gif(df, times)
-make_snaps(df, times, (3,3))
+make_gif(df, times, name='infections')
+make_snaps(df, times, (3,3), name='infections')
+

@@ -1,3 +1,4 @@
+#!/bin/bash
 mkdir data/raw
 cd data/raw
 echo "Downloading global population density map..."

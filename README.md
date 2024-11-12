@@ -1,5 +1,7 @@
 # EpiGeoPop
 
+[![DOI](https://zenodo.org/badge/599134184.svg)](https://doi.org/10.5281/zenodo.14112520)
+
 This repository is a snakemake workflow for getting population density data for arbitrary countries.
 It uses population data from the [JRC Big Data Analytics Platform](https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/GHSL/GHS_POP_MT_GLOBE_R2019A/GHS_POP_E2015_GLOBE_R2019A_4326_30ss/V1-0/), border data from [Natural Earth](https://www.naturalearthdata.com/downloads/10m-cultural-vectors/), and is partially based on Adam Symington's [excellent blog post](https://towardsdatascience.com/creating-beautiful-population-density-maps-with-python-fcdd84035e06).
 This workflow is motivated by extending [epiabm](https://github.com/SABS-R3-Epidemiology/epiabm) to other countries.

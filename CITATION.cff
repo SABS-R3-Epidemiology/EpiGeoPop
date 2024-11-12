@@ -1,0 +1,30 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: EpiGeoPop
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Isaac
+    family-names: Ellmen
+    affiliation: 'Doctoral Training Centre, University of Oxford'
+  - given-names: Ioana
+    family-names: Bouros
+    affiliation: 'Doctoral Training Centre, University of Oxford'
+  - given-names: Kit
+    family-names: Gallagher
+    affiliation: 'Doctoral Training Centre, University of Oxford'
+    email: gallagher@maths.ox.ac.uk
+    orcid: 'https://orcid.org/0000-0003-1401-115X'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.14112520
+    description: The Zenodo DOI of the latest version
+repository-code: 'https://github.com/SABS-R3-Epidemiology/EpiGeoPop'
+abstract: >-
+  Snakemake workflow to generate country-specific population
+  density data, for use in epidemiological modeling
+license: BSD-3-Clause

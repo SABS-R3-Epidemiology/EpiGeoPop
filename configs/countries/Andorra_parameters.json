@@ -1,0 +1,18 @@
+{
+    "mcell_num_per_cell": 9,
+    "ave_places_per_mcell": 5,
+    "household_size_distribution": [
+        0.255000,
+	0.304000,
+	0.209000,
+	0.177000,
+        0.041000,
+	0.010164,
+	0.002218,
+	0.000871,
+        0.000408,
+	0.000339
+    ],
+    "country": "Andorra",
+    "note": "copied from the Gibraltar parameters"
+}

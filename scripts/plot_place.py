@@ -13,7 +13,7 @@ def plot_place(data_path, out_path):
         npzfile = np.load(f)
         country_data = npzfile['country_array']
 
-    ourcmap = cm.get_cmap('hot_r', 460)
+    ourcmap = cm.get_cmap('plasma_r', 460)
     newcolors = ourcmap(np.linspace(0, 1, 460))
     background_colour = np.array([0.9882352941176471, 0.9647058823529412, 0.9607843137254902, 1.0])
     newcolors[:1, :] = background_colour

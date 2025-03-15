@@ -28,7 +28,7 @@ rule render_dag:
 
 rule get_country_arrays:
     input:
-        "data/raw/GHS_POP_E2015_GLOBE_R2019A_4326_30ss_V1_0.tif",
+        "data/raw/GHS_POP_E2025_GLOBE_R2023A_4326_30ss_V1_0.tif",
         "data/raw/ne_10m_admin_0_countries_lakes.zip"
     output:
         "data/processed/countries/{country}.npz"
@@ -37,7 +37,7 @@ rule get_country_arrays:
 
 rule get_province_arrays:
     input:
-        "data/raw/GHS_POP_E2015_GLOBE_R2019A_4326_30ss_V1_0.tif",
+        "data/raw/GHS_POP_E2025_GLOBE_R2023A_4326_30ss_V1_0.tif",
         "data/raw/ne_10m_admin_1_states_provinces.zip"
     output:
         "data/processed/provinces/{province}.npz",
@@ -46,7 +46,7 @@ rule get_province_arrays:
 
 rule get_city_arrays:
     input:
-        "data/raw/GHS_POP_E2015_GLOBE_R2019A_4326_30ss_V1_0.tif",
+        "data/raw/GHS_POP_E2025_GLOBE_R2023A_4326_30ss_V1_0.tif",
         "data/raw/ne_10m_urban_areas_landscan.zip"
     output:
         "data/processed/cities/{city}.npz",
@@ -89,7 +89,7 @@ rule make_microcells:
 
 rule make_pop_dist:
     input:
-        "data/raw/WPP2022_PopulationByAge5GroupSex_Medium.csv",
+        "data/raw/WPP2024_PopulationByAge5GroupSex_Medium.csv",
         "configs/{region}/{place}_parameters.json"
     output:
         "data/processed/{region}/{place}_pop_dist.json"

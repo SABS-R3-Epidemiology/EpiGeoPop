@@ -20,6 +20,26 @@ or animations like:
 
 ## Running
 
+There are two parts to EpiGeoPop:
+
+1. A Snakemake pipeline which creates population density files to be fed into an epidemiological simulation
+2. A script to process simulation outputs and generate visualizations
+
+The generated input files and expected output files for EpiGeoPop are based on epiabm.
+Briefly, the generated input files are CSVs which contain the following fields:
+
+* **cell:** The cell index for a particular tile
+* **microcell:** The microcell index within a cell
+* **location_x:** The longitude of the cell
+* **location_y:** The latitude of the cell
+* **household_number:** The number of households in the microcell
+* **place_numer:** The number of non-residential places in the microcell
+* **Susceptible:** The number of (initially susceptible) people in the microcell
+
+For more information about these files, including a desciption of microcells, etc., please refer to the epiabm repository here https://github.com/SABS-R3-Epidemiology/epiabm.
+
+### Creating simulation inputs
+
 The following shows how to setup and run the Snakemake pipeline.
 By default, it will create the files for running a Luxembourg simulation, but the `Snakefile` can be modified to generated files for many countries, province/states, or cities.
 
@@ -55,21 +75,22 @@ Run the snakemake pipeline
 snakemake --cores 1
 ```
 
-## Exploring the data
+#### Exploring the data
 
 Check the `outputs` directory for example population density maps.
 The image `outputs/dag.svg` shows the entire workflow.
 The file `data/processed/countries/Luxembourg_microcells.csv` contains the generated microcells, used for input to simulations such as epiabm.
 The file `data/processed/countries/Luxembourg_pop_dist.json` contains the age distribution of populations.
 
-## Running on other regions
+#### Running on other regions
 
 The Snakefile contains commented out examples of other regions to show how to generate files for other countries, provinces, and cities.
-These also require a configuration file which can be copied from similar files in the `configs` directory.
+These also require a configuration file to determine factors like the age distribution of the population.
+Boiler plate configurations can be copied from similar files in the `configs` directory.
 
 ## Generating animations
 
-The file `make_gif.py` in `data/sim_outputs` is used for making GIFs and grids from simulation input data.
-To use it, add the simulation output file to `data/sim_outputs`, edit the filename in `make_gif.py`, and run `python make_gif.py`.
+The file `make_gif.py` in `data/sim_outputs` is used for making GIFs and grids from simulation output data.
+To use it, add the simulation output file to `data/sim_outputs`, and run `python make_gif.py -f [filename].csv`.
 The resulating animation and grid of time snapshots will be stored in `data/sim_outputs/animation`.
-An example on Winnipeg (Canada) is provided in this repository.
+An example on Winnipeg (Canada) is provided in this repository and can be run with `python make_gif.py -f output_winnipeg.csv` within the `data/sim_outputs` directory.

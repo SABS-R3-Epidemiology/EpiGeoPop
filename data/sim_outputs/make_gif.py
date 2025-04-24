@@ -1,3 +1,4 @@
+import argparse
 import math
 import glob
 import os
@@ -8,36 +9,14 @@ import matplotlib.animation
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
+from tqdm import tqdm
 
-sim_file = 'output_winnipeg.csv'
-# sim_file = 'output_NZ.csv'
 
-delta = 0.008333
-
-df = pd.read_csv(sim_file)
-x_locs = sorted(list(set(df['location_x'])))
-y_locs = sorted(list(set(df['location_y'])))
-
-# Ensure that the grid is regular and contains all x and y values
-# Note: this may fail if there is a discontinuity (i.e. a group of islands)
-
-# for i in range(len(x_locs) - 1):
-#     diff = x_locs[i+1] - x_locs[i]
-#     assert round(diff, 6) == delta
-
-# for i in range(len(y_locs) - 1):
-#     diff = y_locs[i+1] - y_locs[i]
-#     assert round(diff, 6) == delta
-
-# Map geo coordinates to pixel indices
-
-coord_map = {}
-
-for i in range(len(x_locs)):
-    x = x_locs[i]
-    for j in range(len(y_locs)):
-        y = y_locs[j]
-        coord_map[f'{y}-{x}'] = (len(y_locs) - j - 1, i)
+parser = argparse.ArgumentParser()
+parser.add_argument("-f", "--sim_file", help="CSV file output by a simulation such as epiabm")
+parser.add_argument("--duration", default=100, help="Time (ms) per frame of the GIF")
+parser.add_argument("--dpi", default=300, help="Generated image resolution")
+args = parser.parse_args()
 
 
 def generate_colour_map(df, name, min_value=0.0, cmap=cm.Reds):
@@ -72,7 +51,6 @@ def cbar_ticks(mapper):
 
 
 def render_frame(ax, df, i, time, name, mapper, save_path='.', snaps=False):
-    print(f'Generating frame {i}')
     rows = df[df['time'] == time]
     img_grid = [[-1] * len(x_locs)] * len(y_locs)
     img_grid = np.array(img_grid)
@@ -111,11 +89,14 @@ def make_gif(
     ax = plt.axes()
 
     plt.axis('off')
-    for i, t in enumerate(times):
+    pbar = tqdm(range(len(times)))
+    for i in pbar:
+        pbar.set_description(f'Generating frame {i}')
+        t = times[i]
         render_frame(ax, df, i, t, name, mapper, save_path)
 
     fp_in = f"{save_path}/frame-*.png"
-    fp_name = sim_file.split('/')[-1].replace('.csv', '')
+    fp_name = args.sim_file.split('/')[-1].replace('.csv', '')
     fp_out = f"{save_path}/{fp_name}.gif"
     img, *imgs = [Image.open(f).convert("RGB")
                   for f in sorted(glob.glob(fp_in))]
@@ -124,7 +105,7 @@ def make_gif(
         format="GIF",
         append_images=imgs,
         save_all=True,
-        duration=100,
+        duration=args.duration,
         loop=0,
         optimise=True,
     )
@@ -152,9 +133,11 @@ def make_snaps(
     plot_num = math.prod(grid_dim)
 
     times = [time for time in times if time % math.ceil(len(times)/plot_num) == 0]
-
+    pbar = tqdm(range(len(times)))
     # Add each subplot
-    for i, t in enumerate(times):
+    for i in pbar:
+        pbar.set_description(f'Generating frame {i}')
+        t = times[i]
         render_frame(axs[i], df, i, t, name, mapper, save_path, snaps=True)
         axs[i].axis('off')
 
@@ -163,27 +146,39 @@ def make_snaps(
     cbar = plt.colorbar(mapper, ax=axs.tolist(), ticks=ticks)
     cbar.ax.set_yticklabels(labels)
     cbar.set_label("Total infections")
-    fp_name = sim_file.split('/')[-1].replace('.csv', '')
+    fp_name = args.sim_file.split('/')[-1].replace('.csv', '')
     fp_out = f"{save_path}/{fp_name}_grid.png"
-    plt.savefig(fp_out, bbox_inches='tight', dpi=300)
+    plt.savefig(fp_out, bbox_inches='tight', dpi=args.dpi)
 
 
-names = [
-    'InfectionStatus.InfectASympt',
-    'InfectionStatus.InfectMild',
-    'InfectionStatus.InfectGP',
-    'InfectionStatus.InfectHosp',
-    'InfectionStatus.InfectICU',
-]
+if __name__ == '__main__':
+    df = pd.read_csv(args.sim_file)
+    x_locs = sorted(list(set(df['location_x'])))
+    y_locs = sorted(list(set(df['location_y'])))
 
-# Get all infections
-df['infections'] = df[names].sum(axis=1)
+    # Map geo coordinates to pixel indices
+    coord_map = {}
+    for i in range(len(x_locs)):
+        x = x_locs[i]
+        for j in range(len(y_locs)):
+            y = y_locs[j]
+            coord_map[f'{y}-{x}'] = (len(y_locs) - j - 1, i)
 
-# Sum infections over all age groups, etc.
-df = df.groupby(['time', 'location_x', 'location_y'], as_index=False).sum()
+    names = [
+        'InfectionStatus.InfectASympt',
+        'InfectionStatus.InfectMild',
+        'InfectionStatus.InfectGP',
+        'InfectionStatus.InfectHosp',
+        'InfectionStatus.InfectICU',
+    ]
 
+    # Get all infections
+    df['infections'] = df[names].sum(axis=1)
 
-times = sorted(list(set(df['time'])))
-make_gif(df, times, name='infections')
-make_snaps(df, times, (3,3), name='infections')
+    # Sum infections over all age groups, etc.
+    df = df.groupby(['time', 'location_x', 'location_y'], as_index=False).sum()
+
+    times = sorted(list(set(df['time'])))
+    make_gif(df, times, name='infections')
+    make_snaps(df, times, (3,3), name='infections')
 

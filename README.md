@@ -95,4 +95,4 @@ To use it, add the simulation output file to `data/sim_outputs`, and run `python
 The resulating animation and grid of time snapshots will be stored in `data/sim_outputs/animation`.
 An example on Winnipeg (Canada) is provided in this repository and can be run with `python make_gif.py -f output_winnipeg.csv` within the `data/sim_outputs` directory.
 
-Additional optional arguments (--duration (to control the time per frame in milliseconds, default 100 ms), and --dpi (to set the image resolution, default 300 dpi)) can be provided when running the script, for example: `python make_gif.py -f output_winnipeg.csv --duration 100 --dpi 300'.
+Additional optional arguments (--duration (to control the time per frame in milliseconds, default 100 ms), and --dpi (to set the image resolution, default 300 dpi)) can be provided when running the script, for example: `python make_gif.py -f output_winnipeg.csv --duration 100 --dpi 300`.
